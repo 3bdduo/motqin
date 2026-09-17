@@ -102,7 +102,6 @@ export async function prefetchAllAdminData(supabase: SupabaseClient, force = fal
       const [
         studentsRes,
         tasksRes,
-        overdueRes,
         upcomingExamsRes,
         examsRes,
         quotesRes,

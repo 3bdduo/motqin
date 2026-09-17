@@ -5,19 +5,11 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { StatsCardSkeleton } from "@/components/Skeleton";
 import { todayISO } from "@/lib/utils";
-import { appCache, prefetchAllAdminData, subscribeToCache } from "@/lib/dataCache";
-
-type Stats = {
-  studentsCount: number;
-  todayTotal: number;
-  todayDone: number;
-  overdueCount: number;
-  upcomingExams: number;
-};
+import { appCache, prefetchAllAdminData, subscribeToCache, type AdminStats } from "@/lib/dataCache";
 
 export default function AdminDashboardPage() {
   const supabase = createClient();
-  const [stats, setStats] = useState<Stats | null>(() => appCache.admin.stats);
+  const [stats, setStats] = useState<AdminStats | null>(() => appCache.admin.stats);
 
   useEffect(() => {
     // If we have cached stats, display them immediately
@@ -41,11 +33,10 @@ export default function AdminDashboardPage() {
   const cards = [
     { label: "عدد الطلاب", value: stats?.studentsCount, href: "/admin/students" },
     {
-      label: "إنجاز اليوم",
-      value: stats ? `${stats.todayDone}/${stats.todayTotal}` : undefined,
+      label: "إنجاز المهام",
+      value: stats ? `${stats.completedTasks}/${stats.totalTasks}` : undefined,
       href: "/admin/tasks",
     },
-    { label: "مهام متأخرة", value: stats?.overdueCount, href: "/admin/tasks" },
     { label: "امتحانات قادمة", value: stats?.upcomingExams, href: "/admin/exams" },
   ];
 

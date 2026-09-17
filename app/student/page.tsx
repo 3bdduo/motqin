@@ -23,7 +23,7 @@ export default function StudentHomePage() {
     }
     return "يوم جديد، وفرصة جديدة تقربك من حلمك. الإتقان طريق من درجات.";
   });
-  const [loading, setLoading] = useState<boolean>(() => !appCache.student.todayTasks);
+  const [loading, setLoading] = useState<boolean>(() => !appCache.student.currentDayTasks);
 
   useEffect(() => {
     if (appCache.student.currentDayTasks) {

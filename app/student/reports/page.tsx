@@ -15,20 +15,20 @@ function getSubjectColorClass(subject?: string) {
 export default function StudentReportsPage() {
   const supabase = createClient();
   const [results, setResults] = useState<(ExamResult & { exam: Exam })[]>(() => appCache.student.reportResults ?? []);
-  const [weekStats, setWeekStats] = useState(() => appCache.student.weekStats ?? { total: 0, done: 0 });
+  const [stats, setStats] = useState(() => appCache.student.stats ?? { totalTasks: 0, completedTasks: 0, currentDay: 1 });
   const [loading, setLoading] = useState<boolean>(() => !appCache.student.reportResults);
 
   useEffect(() => {
-    if (appCache.student.reportResults && appCache.student.weekStats) {
+    if (appCache.student.reportResults && appCache.student.stats) {
       setResults(appCache.student.reportResults);
-      setWeekStats(appCache.student.weekStats);
+      setStats(appCache.student.stats);
       setLoading(false);
     }
 
     const unsubscribe = subscribeToCache(() => {
-      if (appCache.student.reportResults && appCache.student.weekStats) {
+      if (appCache.student.reportResults && appCache.student.stats) {
         setResults(appCache.student.reportResults);
-        setWeekStats(appCache.student.weekStats);
+        setStats(appCache.student.stats);
         setLoading(false);
       }
     });
@@ -58,7 +58,7 @@ export default function StudentReportsPage() {
   }
 
   const weekPercent =
-    weekStats.total === 0 ? 0 : Math.round((weekStats.done / weekStats.total) * 100);
+    stats.totalTasks === 0 ? 0 : Math.round((stats.completedTasks / stats.totalTasks) * 100);
   const lastResult = results[results.length - 1];
   const prevResult = results[results.length - 2];
   const trend =
@@ -89,12 +89,12 @@ export default function StudentReportsPage() {
       <div className="grid grid-cols-2 gap-3">
         {/* Weekly Progress */}
         <div className="relative overflow-hidden rounded-2xl border border-[#E2E8F0] bg-[#F8FAFC] p-4 shadow-sm dark:border-[#332922] dark:bg-[#1D1713]">
-          <p className="text-caption font-extrabold text-theme-secondary">مهام الاسبوع</p>
+          <p className="text-caption font-extrabold text-theme-secondary">إجمالي المهام</p>
           <p className="mt-2 h2 text-[#2563EB] dark:text-[#C87A4B]">
             {weekPercent}٪
           </p>
           <p className="mt-1 text-caption font-bold text-theme-secondary">
-            {weekStats.done} من اصل {weekStats.total}
+            {stats.completedTasks} من اصل {stats.totalTasks}
           </p>
         </div>
 

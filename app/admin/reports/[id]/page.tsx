@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { StatsCardSkeleton, TableRowSkeleton, Skeleton } from "@/components/Skeleton";
 import type { Exam, ExamResult, Profile, Task } from "@/lib/types";
 import { formatDate } from "@/lib/utils";
 
@@ -40,8 +41,29 @@ export default function AdminStudentReportPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
-  if (loading) return <p className="text-sm text-ink-400">جاري التحميل...</p>;
-  if (!profile) return <p className="text-sm text-ink-400">الطالب غير موجود</p>;
+  if (loading) {
+    return (
+      <div className="max-w-3xl space-y-5">
+        <Skeleton className="h-8 w-56" />
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <StatsCardSkeleton count={4} />
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="card space-y-2">
+            <Skeleton className="h-5 w-24" />
+            {[1, 2, 3].map(i => <Skeleton key={i} className="h-4 w-full" />)}
+          </div>
+          <div className="card space-y-2">
+            <Skeleton className="h-5 w-24" />
+            {[1, 2].map(i => <Skeleton key={i} className="h-4 w-full" />)}
+          </div>
+        </div>
+        <TableRowSkeleton count={4} />
+      </div>
+    );
+  }
+
+  if (!profile) return <p className="text-caption text-theme-secondary">الطالب غير موجود</p>;
 
   const bySubject: Record<string, { total: number; count: number }> = {};
   results.forEach((r) => {
@@ -64,60 +86,60 @@ export default function AdminStudentReportPage() {
   return (
     <div className="max-w-3xl animate-fade-up space-y-5">
       <div>
-        <h1 className="text-xl font-extrabold text-ink-900 dark:text-white">تقرير مستوى {profile.full_name}</h1>
+        <h1 className="h1 text-theme-primary">تقرير مستوى {profile.full_name}</h1>
       </div>
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <div className="card text-center">
-          <p className="text-xs font-bold text-ink-400">آخر درجة</p>
-          <p className="mt-1 text-xl font-extrabold text-ink-900 dark:text-white">
+          <p className="text-caption text-theme-secondary">آخر درجة</p>
+          <p className="mt-1 h2 text-theme-primary">
             {last ? `${Math.round(last.percentage)}%` : "—"}
           </p>
         </div>
         <div className="card text-center">
-          <p className="text-xs font-bold text-ink-400">التغيّر</p>
+          <p className="text-caption text-theme-secondary">التغيّر</p>
           <p
-            className={`mt-1 text-xl font-extrabold ${
+            className={`mt-1 h2 ${
               last && prev
                 ? last.percentage - prev.percentage >= 0
-                  ? "text-brand-600"
+                  ? "text-[#2563EB] dark:text-[#C87A4B]"
                   : "text-coral-600"
-                : "text-ink-400"
+                : "text-theme-secondary"
             }`}
           >
             {last && prev ? `${last.percentage - prev.percentage >= 0 ? "+" : ""}${Math.round(last.percentage - prev.percentage)}%` : "—"}
           </p>
         </div>
         <div className="card text-center">
-          <p className="text-xs font-bold text-ink-400">إنجاز المهام</p>
-          <p className="mt-1 text-xl font-extrabold text-ink-900 dark:text-white">{completionRate}%</p>
+          <p className="text-caption text-theme-secondary">إنجاز المهام</p>
+          <p className="mt-1 h2 text-theme-primary">{completionRate}%</p>
         </div>
         <div className="card text-center">
-          <p className="text-xs font-bold text-ink-400">مهام متأخرة</p>
-          <p className="mt-1 text-xl font-extrabold text-coral-600">{taskStats.late}</p>
+          <p className="text-caption text-theme-secondary">مهام متأخرة</p>
+          <p className="mt-1 h2 text-coral-600">{taskStats.late}</p>
         </div>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="card">
-          <h2 className="mb-3 font-extrabold text-brand-700 dark:text-brand-400">نقاط القوة</h2>
-          {strong.length === 0 && <p className="text-sm text-ink-400">لا توجد بيانات كافية بعد.</p>}
+          <h2 className="h2 mb-3 text-[#2563EB] dark:text-[#C87A4B]">نقاط القوة</h2>
+          {strong.length === 0 && <p className="text-caption text-theme-secondary">لا توجد بيانات كافية بعد.</p>}
           <ul className="space-y-1.5">
             {strong.map((s) => (
-              <li key={s.subject} className="flex justify-between text-sm">
-                <span className="font-bold text-ink-800 dark:text-ink-100">{s.subject}</span>
-                <span className="font-extrabold text-brand-600">{Math.round(s.avg)}%</span>
+              <li key={s.subject} className="flex justify-between text-body">
+                <span className="font-bold text-theme-primary">{s.subject}</span>
+                <span className="font-extrabold text-[#2563EB] dark:text-[#C87A4B]">{Math.round(s.avg)}%</span>
               </li>
             ))}
           </ul>
         </div>
         <div className="card">
-          <h2 className="mb-3 font-extrabold text-coral-700 dark:text-coral-400">يحتاج تحسين</h2>
-          {weak.length === 0 && <p className="text-sm text-ink-400">لا توجد بيانات كافية بعد.</p>}
+          <h2 className="h2 mb-3 text-coral-700 dark:text-coral-400">يحتاج تحسين</h2>
+          {weak.length === 0 && <p className="text-caption text-theme-secondary">لا توجد بيانات كافية بعد.</p>}
           <ul className="space-y-1.5">
             {weak.map((s) => (
-              <li key={s.subject} className="flex justify-between text-sm">
-                <span className="font-bold text-ink-800 dark:text-ink-100">{s.subject}</span>
+              <li key={s.subject} className="flex justify-between text-body">
+                <span className="font-bold text-theme-primary">{s.subject}</span>
                 <span className="font-extrabold text-coral-600">{Math.round(s.avg)}%</span>
               </li>
             ))}
@@ -126,23 +148,23 @@ export default function AdminStudentReportPage() {
       </div>
 
       <div>
-        <h2 className="mb-3 font-extrabold text-ink-900 dark:text-white">سجل الامتحانات</h2>
+        <h2 className="h2 mb-3 text-theme-primary">سجل الامتحانات</h2>
         <div className="space-y-2">
           {results.map((r) => (
             <div key={r.id} className="card flex items-center justify-between">
               <div>
-                <p className="font-bold text-ink-900 dark:text-white">{r.exam?.title}</p>
-                <p className="text-xs text-ink-400">
+                <p className="font-bold text-theme-primary">{r.exam?.title}</p>
+                <p className="text-caption text-theme-secondary mt-0.5">
                   {r.exam?.subject} • {formatDate(r.taken_at)}
                 </p>
               </div>
-              <span className="badge bg-brand-50 text-brand-700 dark:bg-brand-900/30 dark:text-brand-300">
+              <span className="badge font-extrabold">
                 {Math.round(r.percentage)}%
               </span>
             </div>
           ))}
           {results.length === 0 && (
-            <div className="card text-center text-sm text-ink-400">لم يؤدِّ الطالب أي امتحان بعد.</div>
+            <div className="card text-center text-caption text-theme-secondary">لم يؤدِّ الطالب أي امتحان بعد.</div>
           )}
         </div>
       </div>

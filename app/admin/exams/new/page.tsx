@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Button } from "@/components/Button";
 
 type DraftQuestion = { question_text: string; options: string[]; correct_option_index: number };
 
@@ -65,7 +66,7 @@ export default function NewExamPage() {
 
   return (
     <div className="max-w-2xl animate-fade-up space-y-4 pb-10">
-      <h1 className="text-xl font-extrabold text-ink-900 dark:text-white">إنشاء امتحان شهري</h1>
+      <h1 className="h1 text-theme-primary">إنشاء امتحان شهري</h1>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="card grid gap-4 sm:grid-cols-2">
@@ -113,12 +114,12 @@ export default function NewExamPage() {
         {questions.map((q, i) => (
           <div key={i} className="card space-y-3">
             <div className="flex items-center justify-between">
-              <p className="font-bold text-ink-900 dark:text-white">السؤال {i + 1}</p>
+              <p className="font-bold text-theme-primary">السؤال {i + 1}</p>
               {questions.length > 1 && (
                 <button
                   type="button"
                   onClick={() => setQuestions((prev) => prev.filter((_, idx) => idx !== i))}
-                  className="text-sm font-bold text-coral-600"
+                  className="text-caption font-bold text-coral-600 hover:text-coral-700 transition-colors duration-200 active:scale-95"
                 >
                   حذف السؤال
                 </button>
@@ -140,7 +141,7 @@ export default function NewExamPage() {
                     name={`correct-${i}`}
                     checked={q.correct_option_index === optIdx}
                     onChange={() => updateQuestion(i, { correct_option_index: optIdx })}
-                    className="accent-brand-600"
+                    className="accent-[#2563EB] dark:accent-[#C87A4B] h-4 w-4"
                   />
                   <input
                     className="input"
@@ -151,27 +152,35 @@ export default function NewExamPage() {
                 </div>
               ))}
             </div>
-            <p className="text-xs text-ink-400">اختر الدائرة بجانب الإجابة الصحيحة</p>
+            <p className="text-caption text-theme-secondary">اختر الدائرة بجانب الإجابة الصحيحة</p>
           </div>
         ))}
 
-        <button
+        <Button
           type="button"
+          variant="secondary"
+          className="w-full"
           onClick={() => setQuestions((prev) => [...prev, emptyQuestion()])}
-          className="btn-secondary w-full"
         >
           + إضافة سؤال
-        </button>
+        </Button>
 
         {error && (
-          <p className="rounded-lg bg-coral-50 px-3 py-2 text-sm font-bold text-coral-700 dark:bg-coral-900/30 dark:text-coral-300">
+          <p className="rounded-xl bg-coral-50 border border-coral-200 px-3 py-2 text-body font-bold text-coral-700 dark:bg-coral-950/40 dark:border-coral-900/50 dark:text-coral-300">
             {error}
           </p>
         )}
 
-        <button type="submit" disabled={saving} className="btn-primary w-full">
-          {saving ? "جاري الحفظ..." : "حفظ الامتحان"}
-        </button>
+        <Button
+          type="submit"
+          variant="primary"
+          size="lg"
+          isLoading={saving}
+          loadingText="جاري الحفظ..."
+          className="w-full"
+        >
+          حفظ الامتحان
+        </Button>
       </form>
     </div>
   );

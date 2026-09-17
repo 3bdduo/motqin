@@ -52,7 +52,7 @@ export function NotificationBell() {
           if (!open) markAllRead();
         }}
         aria-label="الإشعارات"
-        className="relative flex h-10 w-10 items-center justify-center rounded-full border border-ink-200 bg-white text-ink-600 transition hover:bg-ink-50 dark:border-ink-700 dark:bg-ink-900 dark:text-ink-300 dark:hover:bg-ink-800"
+        className="relative flex h-10 w-10 items-center justify-center rounded-full border border-[#CBD5E1] bg-transparent text-[#0F172A] transition-all duration-700 hover:bg-[#F1F5F9] dark:border-[#4D3E35] dark:bg-transparent dark:text-[#F5F0EB] dark:hover:bg-[#271F1A]"
       >
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M18 9a6 6 0 1 0-12 0c0 6.5-2.5 8-2.5 8h17S18 15.5 18 9Z" />
@@ -66,16 +66,16 @@ export function NotificationBell() {
       </button>
 
       {open && (
-        <div className="absolute left-0 top-12 z-40 w-80 max-w-[85vw] animate-fade-up rounded-xl2 border border-ink-200 bg-white p-2 shadow-soft dark:border-ink-800 dark:bg-ink-900">
-          <p className="px-2 py-1.5 text-sm font-extrabold text-ink-800 dark:text-ink-100">الإشعارات</p>
+        <div className="absolute left-0 top-12 z-40 w-80 max-w-[85vw] animate-fade-up rounded-2xl border border-[#E2E8F0] bg-[#FFFFFF] p-2 shadow-md dark:border-[#332922] dark:bg-[#14100D]">
+          <p className="px-2 py-1.5 text-sm font-extrabold text-[#0F172A] dark:text-[#F5F0EB]">الإشعارات</p>
           <div className="max-h-80 overflow-y-auto">
             {items.length === 0 && (
-              <p className="px-2 py-6 text-center text-sm text-ink-400">لا توجد إشعارات حاليًا</p>
+              <p className="px-2 py-6 text-center text-sm text-[#475569] dark:text-[#A3968B]">لا توجد إشعارات حاليًا</p>
             )}
             {items.map((n) => (
-              <div key={n.id} className="rounded-lg px-2 py-2 hover:bg-ink-50 dark:hover:bg-ink-800">
-                <p className="text-sm font-bold text-ink-800 dark:text-ink-100">{n.message}</p>
-                <p className="mt-0.5 text-xs text-ink-400">{formatDateTime(n.created_at)}</p>
+              <div key={n.id} className="rounded-lg px-2 py-2 hover:bg-[#EFF6FF] dark:hover:bg-[#271F1A]">
+                <p className="text-sm font-bold text-[#0F172A] dark:text-[#F5F0EB]">{n.message}</p>
+                <p className="mt-0.5 text-xs text-[#475569] dark:text-[#A3968B]">{formatDateTime(n.created_at)}</p>
               </div>
             ))}
           </div>

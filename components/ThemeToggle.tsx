@@ -2,15 +2,23 @@
 
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
+import { cn } from "@/lib/utils";
 
-export function ThemeToggle() {
+interface ThemeToggleProps {
+  className?: string;
+  showLabels?: boolean | "responsive";
+}
+
+export function ThemeToggle({ className = "" }: ThemeToggleProps) {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => setMounted(true), []);
 
   if (!mounted) {
-    return <div className="h-10 w-10 rounded-full bg-ink-100 dark:bg-ink-800" />;
+    return (
+      <div className={cn("h-[42px] w-[42px] rounded-full bg-[#E2E8F0] dark:bg-[#271F1A] animate-pulse shrink-0", className)} />
+    );
   }
 
   const isDark = theme === "dark";
@@ -20,18 +28,41 @@ export function ThemeToggle() {
       type="button"
       onClick={() => setTheme(isDark ? "light" : "dark")}
       aria-label={isDark ? "تفعيل الوضع الفاتح" : "تفعيل الوضع الداكن"}
-      className="flex h-10 w-10 items-center justify-center rounded-full border border-ink-200 bg-white text-ink-600 transition hover:bg-ink-50 dark:border-ink-700 dark:bg-ink-900 dark:text-amber-300 dark:hover:bg-ink-800"
+      title={isDark ? "التبديل إلى الوضع الفاتح" : "التبديل إلى الوضع الداكن"}
+      className={cn("theme-btn shrink-0", className)}
     >
-      {isDark ? (
-        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-          <circle cx="12" cy="12" r="4.5" />
-          <path d="M12 2.5v2M12 19.5v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M2.5 12h2M19.5 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4" />
+      {/* Sun Icon */}
+      <span className="icon sun-icon text-amber-500">
+        <svg
+          width="22"
+          height="22"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <circle cx="12" cy="12" r="4.5" fill="#F59E0B" fillOpacity="0.25" />
+          <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
         </svg>
-      ) : (
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M20.8 14.7a8.6 8.6 0 0 1-10.5-10.5.6.6 0 0 0-.78-.72A9.6 9.6 0 1 0 21.5 15.5a.6.6 0 0 0-.7-.8Z" />
+      </span>
+
+      {/* Moon Icon */}
+      <span className="icon moon-icon text-[#E09F6E]">
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="currentColor"
+          stroke="currentColor"
+          strokeWidth="1.2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
         </svg>
-      )}
+      </span>
     </button>
   );
 }

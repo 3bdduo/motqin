@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { Button } from "@/components/Button";
+import { FormSkeleton } from "@/components/Skeleton";
 import type { Profile, StudentSettings } from "@/lib/types";
 
 const SUBJECT_OPTIONS = [
@@ -39,6 +41,7 @@ export default function StudentDetailPage() {
   const [subjects, setSubjects] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
   useEffect(() => {
@@ -92,24 +95,36 @@ export default function StudentDetailPage() {
 
   async function handleDelete() {
     if (!confirm(`هل أنت متأكد من حذف الطالب ${profile?.full_name}؟ لا يمكن التراجع.`)) return;
+    setIsDeleting(true);
     const res = await fetch(`/api/students/${id}`, { method: "DELETE" });
     if (res.ok) router.push("/admin/students");
+    else setIsDeleting(false);
   }
 
-  if (loading) return <p className="text-sm text-ink-400">جاري التحميل...</p>;
-  if (!profile) return <p className="text-sm text-ink-400">الطالب غير موجود</p>;
+  if (loading) return (
+    <div className="max-w-xl space-y-4">
+      <div className="h-8 w-48 rounded-xl bg-[#EFF6FF] dark:bg-[#271F1A] animate-pulse" />
+      <FormSkeleton />
+    </div>
+  );
+  if (!profile) return <p className="text-caption text-theme-secondary">الطالب غير موجود</p>;
 
   return (
     <div className="max-w-xl animate-fade-up space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-xl font-extrabold text-ink-900 dark:text-white">{profile.full_name}</h1>
+        <h1 className="h1 text-theme-primary">{profile.full_name}</h1>
         <div className="flex gap-2">
           <Link href={`/admin/reports/${id}`} className="btn-secondary">
             تقرير المستوى
           </Link>
-          <button onClick={handleDelete} className="btn-danger">
+          <Button
+            variant="danger"
+            isLoading={isDeleting}
+            loadingText="جاري الحذف..."
+            onClick={handleDelete}
+          >
             حذف الطالب
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -166,10 +181,10 @@ export default function StudentDetailPage() {
                 type="button"
                 key={subject}
                 onClick={() => toggleSubject(subject)}
-                className={`rounded-full border px-3 py-1.5 text-sm font-bold transition ${
+                className={`rounded-full border px-3 py-1.5 text-caption font-bold transition-all duration-200 ease-out active:scale-[0.96] ${
                   subjects.includes(subject)
-                    ? "border-brand-600 bg-brand-600 text-white"
-                    : "border-ink-200 text-ink-600 dark:border-ink-700 dark:text-ink-300"
+                    ? "border-[#2563EB] bg-[#2563EB] text-white dark:border-[#C87A4B] dark:bg-[#C87A4B]"
+                    : "border-[#CBD5E1] text-[#475569] hover:border-[#2563EB] hover:text-[#2563EB] dark:border-[#4D3E35] dark:text-[#A3968B] dark:hover:border-[#C87A4B] dark:hover:text-[#E09F6E]"
                 }`}
               >
                 {subject}
@@ -196,11 +211,22 @@ export default function StudentDetailPage() {
           />
         </div>
 
-        {message && <p className="text-sm font-bold text-brand-600 dark:text-brand-400">{message}</p>}
+        {message && (
+          <p className={`text-body font-bold ${message.includes("خطأ") ? "text-coral-600" : "text-[#2563EB] dark:text-[#E09F6E]"}`}>
+            {message}
+          </p>
+        )}
 
-        <button type="submit" disabled={saving} className="btn-primary w-full">
-          {saving ? "جاري الحفظ..." : "حفظ التغييرات"}
-        </button>
+        <Button
+          type="submit"
+          variant="primary"
+          size="lg"
+          isLoading={saving}
+          loadingText="جاري الحفظ..."
+          className="w-full"
+        >
+          حفظ التغييرات
+        </Button>
       </form>
     </div>
   );

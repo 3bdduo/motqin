@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Button } from "@/components/Button";
 
 const SUBJECT_OPTIONS = [
   "عربي",
@@ -39,34 +40,54 @@ export default function NewStudentPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (loading) return;
     setLoading(true);
     setError(null);
 
-    const res = await fetch("/api/students", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        ...form,
-        study_hours_per_day: form.study_hours_per_day ? Number(form.study_hours_per_day) : null,
-        subjects,
-      }),
-    });
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000);
 
-    setLoading(false);
+    try {
+      const res = await fetch("/api/students", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        signal: controller.signal,
+        body: JSON.stringify({
+          ...form,
+          study_hours_per_day: form.study_hours_per_day ? Number(form.study_hours_per_day) : null,
+          subjects,
+        }),
+      });
 
-    if (!res.ok) {
-      const data = await res.json();
-      setError(data.error ?? "حدث خطأ");
-      return;
+      clearTimeout(timeoutId);
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        setError(data.error ?? "حدث خطأ أثناء إنشاء حساب الطالب");
+        setLoading(false);
+        return;
+      }
+
+      // Invalidate admin cache so students list shows the new student immediately
+      const { cacheMutations } = await import("@/lib/dataCache");
+      cacheMutations.invalidateAdmin();
+
+      router.push("/admin/students");
+    } catch (err: any) {
+      clearTimeout(timeoutId);
+      if (err?.name === "AbortError") {
+        setError("استغرقت العملية وقتاً أطول من المتوقع، يرجى المحاولة مرة أخرى.");
+      } else {
+        setError("تعذر الاتصال بالخادم، يرجى التحقق من اتصال الإنترنت.");
+      }
+      setLoading(false);
     }
-
-    router.push("/admin/students");
-    router.refresh();
   }
 
   return (
     <div className="max-w-xl animate-fade-up space-y-4">
-      <h1 className="text-xl font-extrabold text-ink-900 dark:text-white">إضافة طالب جديد</h1>
+      <h1 className="h1 text-theme-primary">إضافة طالب جديد</h1>
 
       <form onSubmit={handleSubmit} className="card space-y-4">
         <div>
@@ -135,10 +156,10 @@ export default function NewStudentPage() {
                 type="button"
                 key={subject}
                 onClick={() => toggleSubject(subject)}
-                className={`rounded-full border px-3 py-1.5 text-sm font-bold transition ${
+                className={`rounded-full border px-3 py-1.5 text-caption font-bold transition-all duration-200 ease-out active:scale-[0.96] ${
                   subjects.includes(subject)
-                    ? "border-brand-600 bg-brand-600 text-white"
-                    : "border-ink-200 text-ink-600 dark:border-ink-700 dark:text-ink-300"
+                    ? "border-[#2563EB] bg-[#2563EB] text-white dark:border-[#C87A4B] dark:bg-[#C87A4B]"
+                    : "border-[#CBD5E1] text-[#475569] hover:border-[#2563EB] hover:text-[#2563EB] dark:border-[#4D3E35] dark:text-[#A3968B] dark:hover:border-[#C87A4B] dark:hover:text-[#E09F6E]"
                 }`}
               >
                 {subject}
@@ -167,14 +188,21 @@ export default function NewStudentPage() {
         </div>
 
         {error && (
-          <p className="rounded-lg bg-coral-50 px-3 py-2 text-sm font-bold text-coral-700 dark:bg-coral-900/30 dark:text-coral-300">
+          <p className="rounded-xl bg-coral-50 border border-coral-200 px-3 py-2 text-caption font-black text-coral-700 dark:bg-coral-950/40 dark:border-coral-900/50 dark:text-coral-300">
             {error}
           </p>
         )}
 
-        <button type="submit" disabled={loading} className="btn-primary w-full">
-          {loading ? "جاري الإضافة..." : "إضافة الطالب"}
-        </button>
+        <Button
+          type="submit"
+          variant="primary"
+          size="lg"
+          isLoading={loading}
+          loadingText="جاري الإضافة..."
+          className="w-full"
+        >
+          إضافة الطالب
+        </Button>
       </form>
     </div>
   );

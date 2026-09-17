@@ -3,6 +3,8 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { SignOutButton } from "@/components/SignOutButton";
 import { AdminSidebar } from "@/components/AdminSidebar";
 import { AdminMobileNav } from "@/components/AdminMobileNav";
+import { LogoWithModal } from "@/components/LogoWithModal";
+import { AdminDataPrefetcher } from "@/components/DataPrefetcher";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const supabase = createClient();
@@ -15,20 +17,23 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     : { data: null };
 
   return (
-    <div className="min-h-screen bg-ink-50 dark:bg-ink-950">
-      <header className="sticky top-0 z-20 border-b border-ink-200/70 bg-ink-50/80 backdrop-blur dark:border-ink-800 dark:bg-ink-950/80">
+    <div className="min-h-screen bg-[#F4F8FC] dark:bg-[#0A0807] transition-colors duration-300">
+      <AdminDataPrefetcher />
+      <header className="sticky top-0 z-20 border-b border-[#E2E8F0] bg-white/95 backdrop-blur-md shadow-sm dark:border-[#332922] dark:bg-[#14100D]/95 transition-all duration-700">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-600 font-extrabold text-white">
-              م
-            </div>
+            <LogoWithModal />
             <div>
-              <p className="text-xs text-ink-400">لوحة تحكم المشرف</p>
-              <p className="font-extrabold text-ink-900 dark:text-white">{profile?.full_name ?? "المشرف"}</p>
+              <p className="text-xs font-bold text-[#475569] dark:text-[#A3968B]">
+                الاستاذة اسراء حسن — لوحة التحكم
+              </p>
+              <p className="font-extrabold text-[#0F172A] dark:text-[#F5F0EB]">
+                {profile?.full_name ?? "المشرف"}
+              </p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <ThemeToggle />
+          <div className="flex items-center gap-3">
+            <ThemeToggle showLabels="responsive" />
             <SignOutButton />
           </div>
         </div>

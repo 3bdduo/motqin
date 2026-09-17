@@ -2,59 +2,374 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  /* LIGHT MODE (White & Blue focus) */
+  --bg-body: #F4F8FC;
+  --bg-container: #FFFFFF;
+  --bg-card: #F8FAFC;
+  --bg-nested: #EFF6FF;
+  --bg-secondary: #F1F5F9;
+  --text-primary: #0F172A;
+  --text-secondary: #475569;
+  --border-divider: #E2E8F0;
+  --border-color: #E2E8F0;
+
+  --btn-primary-bg: #2563EB;
+  --btn-primary-text: #FFFFFF;
+  --btn-primary-hover: #1D4ED8;
+
+  --btn-secondary-bg: transparent;
+  --btn-secondary-border: #CBD5E1;
+  --btn-secondary-text: #0F172A;
+  --btn-secondary-hover: #F1F5F9;
+
+  --badge-accent-bg: #DBEAFE;
+  --badge-accent-text: #1E40AF;
+}
+
+.dark {
+  /* DARK MODE (Black & Warm/Leather Brown focus) */
+  --bg-body: #0A0807;
+  --bg-container: #14100D;
+  --bg-card: #1D1713;
+  --bg-nested: #271F1A;
+  --bg-secondary: #1D1713;
+  --text-primary: #F5F0EB;
+  --text-secondary: #A3968B;
+  --border-divider: #332922;
+  --border-color: #332922;
+
+  --btn-primary-bg: #C87A4B;
+  --btn-primary-text: #FFFFFF;
+  --btn-primary-hover: #D98A5B;
+
+  --btn-secondary-bg: transparent;
+  --btn-secondary-border: #4D3E35;
+  --btn-secondary-text: #F5F0EB;
+  --btn-secondary-hover: #271F1A;
+
+  --badge-accent-bg: #3A2B22;
+  --badge-accent-text: #E09F6E;
+}
+
+html {
+  transition: background-color 0.8s ease, color 0.8s ease;
+}
+
+body {
+  background-color: var(--bg-body);
+  color: var(--text-primary);
+  transition: background-color 0.8s ease, color 0.8s ease;
+  @apply antialiased;
+}
+
+/* Global slow transitions for all UI divs and containers */
+div, header, nav, main, aside, section, article, footer,
+.card, .nested-div, .outer-container, input, textarea, select {
+  transition: background-color 0.8s ease, border-color 0.8s ease, color 0.8s ease, box-shadow 0.8s ease;
+}
+
+/* All buttons: active scale click effect + slow smooth color transition */
+button, .btn, [role="button"] {
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+              background-color 0.8s ease,
+              color 0.8s ease,
+              border-color 0.8s ease,
+              box-shadow 0.8s ease;
+}
+
+button:active:not(:disabled),
+.btn:active:not(:disabled),
+[role="button"]:active {
+  transform: scale(0.92);
+}
+
+/* ═══════════════════════════════════════════════════
+   THEME TOGGLE BUTTON (.theme-btn)
+   ═══════════════════════════════════════════════════ */
+.theme-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+              background-color 0.8s ease,
+              border-color 0.8s ease,
+              box-shadow 0.8s ease;
+}
+
+.theme-btn:hover {
+  transform: scale(1.08);
+}
+
+/* تأثير الضغط على الزرار */
+.theme-btn:active {
+  transform: scale(0.88) !important;
+}
+
+/* حركة الأيقونة الداخلية - slow spring rotation */
+.theme-btn .icon {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1),
+              opacity 0.6s ease;
+}
+
+/* عند الدارك مود، لف واختفاء الشمس */
+.dark .theme-btn .sun-icon {
+  transform: rotate(180deg) scale(0);
+  opacity: 0;
+  pointer-events: none;
+}
+:not(.dark) .theme-btn .sun-icon {
+  transform: rotate(0deg) scale(1);
+  opacity: 1;
+}
+
+/* عند اللايت مود، لف واختفاء القمر */
+:not(.dark) .theme-btn .moon-icon {
+  transform: rotate(-180deg) scale(0);
+  opacity: 0;
+  pointer-events: none;
+}
+.dark .theme-btn .moon-icon {
+  transform: rotate(0deg) scale(1);
+  opacity: 1;
+}
+
+/* ═══════════════════════════════════════════════════
+   ANIMATED MOVING SPINNER KEYFRAMES
+   ═══════════════════════════════════════════════════ */
+@keyframes logo-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes logo-spin-reverse {
+  0% { transform: rotate(360deg); }
+  100% { transform: rotate(0deg); }
+}
+
+@keyframes logo-breathe {
+  0%, 100% { transform: scale(0.92); opacity: 0.95; }
+  50% { transform: scale(1.08); opacity: 1; }
+}
+
+.animate-logo-spin {
+  animation: logo-spin 1s linear infinite !important;
+}
+
+.animate-logo-spin-reverse {
+  animation: logo-spin-reverse 1.2s linear infinite !important;
+}
+
+.animate-logo-breathe {
+  animation: logo-breathe 1.6s ease-in-out infinite !important;
+}
+
 @layer base {
-  html {
-    scroll-behavior: smooth;
-  }
-
-  body {
-    @apply bg-ink-50 text-ink-900 antialiased;
-    @apply dark:bg-ink-950 dark:text-ink-100;
-  }
-
   ::selection {
-    @apply bg-brand-300/50;
+    background-color: var(--badge-accent-bg);
+    color: var(--badge-accent-text);
   }
 
   *:focus-visible {
-    @apply outline-none ring-2 ring-brand-500 ring-offset-2 ring-offset-ink-50 dark:ring-offset-ink-950;
+    outline: none;
+    box-shadow: 0 0 0 2px var(--btn-primary-bg);
+    transition: box-shadow 250ms ease;
   }
 }
 
 @layer components {
-  .card {
-    @apply rounded-xl2 border border-ink-200/70 bg-white p-5 shadow-soft;
-    @apply dark:border-ink-800 dark:bg-ink-900 dark:shadow-soft-dark;
+  /* ── Outer Containers & Headers ────────────────── */
+  .outer-container {
+    background-color: var(--bg-container);
+    border-color: var(--border-divider);
+    color: var(--text-primary);
   }
 
+  /* ── Typography Scale ───────────────────────────── */
+  h1, .h1 {
+    @apply font-heading text-[1.75rem] md:text-[2.5rem] font-bold leading-[1.2] tracking-tight;
+  }
+
+  h2, .h2 {
+    @apply font-heading text-[1.5rem] md:text-[2.0rem] font-bold leading-[1.3] tracking-tight;
+  }
+
+  h3, .h3 {
+    @apply font-heading text-[1.125rem] md:text-[1.25rem] font-semibold leading-[1.4] tracking-tight;
+  }
+
+  .text-body-lg {
+    @apply font-sans text-[1.125rem] leading-[1.6] font-normal;
+  }
+
+  .text-body {
+    @apply font-sans text-[1rem] leading-[1.6] font-normal;
+  }
+
+  .text-caption {
+    @apply font-sans text-[0.875rem] leading-[1.4] font-medium;
+  }
+
+  /* ── Card / Inner Div ───────────────────────────── */
+  .card {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-divider);
+    color: var(--text-primary);
+    @apply rounded-2xl p-5 shadow-sm transition-all duration-[600ms] ease-out;
+  }
+
+  .card:hover {
+    @apply -translate-y-0.5 shadow-md;
+  }
+
+  .card-interactive {
+    @apply card cursor-pointer select-none active:scale-[0.98];
+  }
+
+  /* ── Nested Div / Micro Div ─────────────────────── */
+  .nested-div {
+    background-color: var(--bg-nested);
+    border: 1px solid var(--border-divider);
+    color: var(--text-primary);
+    @apply rounded-xl transition-all duration-[600ms] ease-out;
+  }
+
+  /* ── Buttons ────────────────────────────────────── */
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold transition active:scale-[0.98];
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-extrabold transition-all duration-[600ms] ease-out select-none;
+  }
+
+  .btn:hover {
+    transform: translateY(-1px);
+  }
+
+  .btn:active {
+    transform: scale(0.98);
   }
 
   .btn-primary {
-    @apply btn bg-brand-600 text-white hover:bg-brand-700 disabled:opacity-50 disabled:pointer-events-none;
+    @apply btn;
+    background-color: var(--btn-primary-bg);
+    color: var(--btn-primary-text);
+    border: 1px solid transparent;
+  }
+
+  .btn-primary:hover {
+    background-color: var(--btn-primary-hover);
+    color: var(--btn-primary-text);
   }
 
   .btn-secondary {
-    @apply btn bg-ink-100 text-ink-800 hover:bg-ink-200 dark:bg-ink-800 dark:text-ink-100 dark:hover:bg-ink-700;
+    @apply btn;
+    background-color: var(--btn-secondary-bg);
+    border: 1px solid var(--btn-secondary-border);
+    color: var(--btn-secondary-text);
+  }
+
+  .btn-secondary:hover {
+    background-color: var(--btn-secondary-hover);
   }
 
   .btn-danger {
-    @apply btn bg-coral-50 text-coral-700 hover:bg-coral-100 dark:bg-coral-900/30 dark:text-coral-300 dark:hover:bg-coral-900/50;
+    @apply btn bg-coral-50 text-coral-700 border border-coral-200 hover:bg-coral-100;
+    @apply dark:bg-coral-950/40 dark:text-coral-300 dark:border-coral-900/50 dark:hover:bg-coral-900/50;
   }
 
+  /* ── Inputs ─────────────────────────────────────── */
   .input {
-    @apply w-full rounded-xl border border-ink-200 bg-white px-4 py-2.5 text-sm text-ink-900 placeholder:text-ink-400 transition focus:border-brand-500;
-    @apply dark:border-ink-700 dark:bg-ink-900 dark:text-ink-100;
+    background-color: var(--bg-nested);
+    border: 1px solid var(--border-divider);
+    color: var(--text-primary);
+    @apply w-full rounded-xl px-4 py-2.5 text-sm transition-all duration-[600ms];
+  }
+
+  .input::placeholder {
+    color: var(--text-secondary);
+  }
+
+  .input:hover {
+    border-color: var(--btn-secondary-border);
+  }
+
+  .input:focus {
+    border-color: var(--btn-primary-bg);
+    box-shadow: 0 0 0 2px var(--btn-primary-bg);
+    outline: none;
   }
 
   .label {
-    @apply mb-1.5 block text-sm font-bold text-ink-700 dark:text-ink-300;
+    color: var(--text-primary);
+    @apply mb-1.5 block text-sm font-extrabold;
   }
 
+  /* ── Badges ─────────────────────────────────────── */
   .badge {
-    @apply inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold;
+    @apply inline-flex items-center rounded-full px-2.5 py-1 text-xs font-black tracking-wide transition-all duration-[600ms];
+    background-color: var(--badge-accent-bg);
+    color: var(--badge-accent-text);
+    border: 1px solid var(--border-divider);
   }
+
+  .badge-accent {
+    background-color: var(--badge-accent-bg);
+    color: var(--badge-accent-text);
+    border: 1px solid var(--border-divider);
+  }
+
+  /* ── Table Row Hover ────────────────────────────── */
+  .table-row-hover {
+    @apply transition-colors duration-[600ms] cursor-pointer;
+  }
+  .table-row-hover:hover {
+    background-color: var(--bg-nested);
+  }
+
+  /* ── Semantic Text Utilities ────────────────────── */
+  .text-theme-primary {
+    color: var(--text-primary);
+  }
+
+  .text-theme-secondary {
+    color: var(--text-secondary);
+  }
+
+  .border-theme {
+    border-color: var(--border-divider);
+  }
+
+  .bg-theme-body {
+    background-color: var(--bg-body);
+  }
+
+  .bg-theme-container {
+    background-color: var(--bg-container);
+  }
+
+  .bg-theme-card {
+    background-color: var(--bg-card);
+  }
+
+  .bg-theme-nested {
+    background-color: var(--bg-nested);
+  }
+}
+
+/* Page Transition — smooth fade-up on every route change */
+main {
+  animation: fade-up 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -63,5 +378,9 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+
+  main {
+    animation: none;
   }
 }

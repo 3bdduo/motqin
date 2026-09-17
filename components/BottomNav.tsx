@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 
 const items = [
@@ -13,24 +14,70 @@ const items = [
 
 export function BottomNav() {
   const pathname = usePathname();
+  const router = useRouter();
+  const [loadingHref, setLoadingHref] = useState<string | null>(null);
+
+  useEffect(() => {
+    setLoadingHref(null);
+  }, [pathname]);
+
+  function handleNav(href: string) {
+    const active = href === "/student" ? pathname === href : pathname.startsWith(href);
+    if (active || loadingHref) return;
+    setLoadingHref(href);
+    router.push(href);
+    setTimeout(() => setLoadingHref(null), 2500);
+  }
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-ink-200 bg-white/90 backdrop-blur dark:border-ink-800 dark:bg-ink-900/90">
-      <div className="mx-auto flex max-w-md items-stretch justify-around">
+    <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-[#E2E8F0] bg-white/95 backdrop-blur-lg shadow-lg dark:border-[#332922] dark:bg-[#14100D]/95 transition-colors duration-700">
+      <div className="mx-auto flex max-w-md items-center justify-around px-2 py-1.5">
         {items.map(({ href, label, icon: Icon }) => {
           const active = href === "/student" ? pathname === href : pathname.startsWith(href);
+          const isLoading = loadingHref === href;
           return (
-            <Link
+            <button
               key={href}
-              href={href}
+              type="button"
+              onClick={() => handleNav(href)}
+              disabled={!!loadingHref && !active}
               className={cn(
-                "flex flex-1 flex-col items-center gap-1 py-2.5 text-xs font-bold transition",
-                active ? "text-brand-600 dark:text-brand-400" : "text-ink-400 dark:text-ink-500"
+                "group relative flex flex-1 flex-col items-center gap-1 py-1.5 px-1 text-[11px] font-extrabold rounded-2xl transition-all duration-700",
+                active
+                  ? "text-[#2563EB] dark:text-[#E09F6E]"
+                  : "text-[#475569] hover:text-[#0F172A] dark:text-[#A3968B] dark:hover:text-[#F5F0EB] hover:scale-105",
+                isLoading && "opacity-70"
               )}
             >
-              <Icon active={active} />
-              {label}
-            </Link>
+              {/* Active pill background */}
+              {active && (
+                <span className="absolute inset-x-2 inset-y-1 -z-10 rounded-xl bg-[#EFF6FF] dark:bg-[#271F1A] animate-fade-in" />
+              )}
+
+              <div
+                className={cn(
+                  "relative flex items-center justify-center transition-transform duration-700",
+                  active ? "scale-110 -translate-y-0.5" : "group-hover:scale-110"
+                )}
+              >
+                {isLoading ? (
+                  <svg
+                    className="animate-spin text-[#2563EB] dark:text-[#C87A4B]"
+                    style={{ width: "22px", height: "22px" }}
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
+                    <path className="opacity-80" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  </svg>
+                ) : (
+                  <Icon active={active} />
+                )}
+              </div>
+              <span className="leading-tight">{isLoading ? "..." : label}</span>
+            </button>
           );
         })}
       </div>
@@ -46,6 +93,7 @@ function HomeIcon({ active }: { active: boolean }) {
     </svg>
   );
 }
+
 function ClockIcon({ active }: { active: boolean }) {
   return (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={active ? 2.4 : 1.8} strokeLinecap="round">
@@ -54,6 +102,7 @@ function ClockIcon({ active }: { active: boolean }) {
     </svg>
   );
 }
+
 function PencilIcon({ active }: { active: boolean }) {
   return (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={active ? 2.4 : 1.8} strokeLinecap="round" strokeLinejoin="round">
@@ -62,6 +111,7 @@ function PencilIcon({ active }: { active: boolean }) {
     </svg>
   );
 }
+
 function ChartIcon({ active }: { active: boolean }) {
   return (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={active ? 2.4 : 1.8} strokeLinecap="round" strokeLinejoin="round">

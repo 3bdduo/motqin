@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { StatsCardSkeleton, TableRowSkeleton } from "@/components/Skeleton";
 import type { Exam, ExamResult, Profile } from "@/lib/types";
 import { formatDateTime } from "@/lib/utils";
 
@@ -36,35 +37,49 @@ export default function AdminExamResultsPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
-  if (loading) return <p className="text-sm text-ink-400">جاري التحميل...</p>;
-  if (!exam) return <p className="text-sm text-ink-400">الامتحان غير موجود</p>;
+  if (loading) {
+    return (
+      <div className="space-y-5">
+        <div className="space-y-2">
+          <div className="h-5 w-20 rounded-full bg-[#EFF6FF] dark:bg-[#271F1A] animate-pulse" />
+          <div className="h-8 w-64 rounded-xl bg-[#EFF6FF] dark:bg-[#271F1A] animate-pulse" />
+        </div>
+        <div className="grid grid-cols-3 gap-3">
+          <StatsCardSkeleton count={3} />
+        </div>
+        <TableRowSkeleton count={4} />
+      </div>
+    );
+  }
+
+  if (!exam) return <p className="text-caption text-theme-secondary">الامتحان غير موجود</p>;
 
   const avg = results.length ? results.reduce((s, r) => s + r.percentage, 0) / results.length : 0;
 
   return (
     <div className="space-y-5 animate-fade-up">
       <div>
-        <span className="badge bg-ink-100 text-ink-700 dark:bg-ink-800 dark:text-ink-200">{exam.subject}</span>
-        <h1 className="mt-1.5 text-xl font-extrabold text-ink-900 dark:text-white">{exam.title}</h1>
-        <p className="text-sm text-ink-400">{formatDateTime(exam.exam_date)}</p>
+        <span className="badge">{exam.subject}</span>
+        <h1 className="h1 text-theme-primary mt-1.5">{exam.title}</h1>
+        <p className="text-caption text-theme-secondary">{formatDateTime(exam.exam_date)}</p>
       </div>
 
       <div className="grid grid-cols-3 gap-3">
         <div className="card text-center">
-          <p className="text-xs font-bold text-ink-400">أدّى الامتحان</p>
-          <p className="mt-1 text-xl font-extrabold text-ink-900 dark:text-white">
+          <p className="text-caption text-theme-secondary">أدّى الامتحان</p>
+          <p className="mt-1 h2 text-theme-primary">
             {results.length}/{totalStudents}
           </p>
         </div>
         <div className="card text-center">
-          <p className="text-xs font-bold text-ink-400">المتوسط</p>
-          <p className="mt-1 text-xl font-extrabold text-brand-600 dark:text-brand-400">
+          <p className="text-caption text-theme-secondary">المتوسط</p>
+          <p className="mt-1 h2 text-[#2563EB] dark:text-[#C87A4B]">
             {Math.round(avg)}%
           </p>
         </div>
         <div className="card text-center">
-          <p className="text-xs font-bold text-ink-400">أعلى نتيجة</p>
-          <p className="mt-1 text-xl font-extrabold text-ink-900 dark:text-white">
+          <p className="text-caption text-theme-secondary">أعلى نتيجة</p>
+          <p className="mt-1 h2 text-theme-primary">
             {results.length ? Math.round(results[0].percentage) : 0}%
           </p>
         </div>
@@ -73,19 +88,19 @@ export default function AdminExamResultsPage() {
       <div className="space-y-2">
         {results.map((r) => (
           <div key={r.id} className="card flex items-center justify-between">
-            <p className="font-bold text-ink-900 dark:text-white">{r.student?.full_name}</p>
+            <p className="font-bold text-theme-primary">{r.student?.full_name}</p>
             <div className="flex items-center gap-2">
-              <span className="text-sm text-ink-400">
+              <span className="text-caption text-theme-secondary">
                 {r.score}/{r.total}
               </span>
-              <span className="badge bg-brand-50 text-brand-700 dark:bg-brand-900/30 dark:text-brand-300">
+              <span className="badge font-extrabold">
                 {Math.round(r.percentage)}%
               </span>
             </div>
           </div>
         ))}
         {results.length === 0 && (
-          <div className="card text-center text-sm text-ink-400">لم يؤدِّ أي طالب هذا الامتحان بعد.</div>
+          <div className="card text-center text-body text-theme-secondary">لم يؤدِّ أي طالب هذا الامتحان بعد.</div>
         )}
       </div>
     </div>

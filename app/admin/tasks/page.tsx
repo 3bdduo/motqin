@@ -2,8 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { Button } from "@/components/Button";
+import { TableRowSkeleton } from "@/components/Skeleton";
 import type { Profile, Task } from "@/lib/types";
 import { todayISO } from "@/lib/utils";
+import { appCache, prefetchAllAdminData, subscribeToCache } from "@/lib/dataCache";
 
 const statusLabel: Record<string, string> = {
   pending: "لسه",
@@ -13,24 +16,35 @@ const statusLabel: Record<string, string> = {
 
 export default function AdminTasksPage() {
   const supabase = createClient();
-  const [students, setStudents] = useState<Profile[]>([]);
-  const [studentId, setStudentId] = useState("");
+  const [students, setStudents] = useState<Profile[]>(() => appCache.admin.students ?? []);
+  const [studentId, setStudentId] = useState(() => appCache.admin.students?.[0]?.id ?? "");
   const [date, setDate] = useState(todayISO());
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const [form, setForm] = useState({ subject: "", title: "", description: "", duration_minutes: "" });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    async function loadStudents() {
-      const { data } = await supabase.from("profiles").select("*").eq("role", "student").order("full_name");
-      setStudents((data as Profile[]) ?? []);
-      if (data && data.length > 0) setStudentId(data[0].id);
+    if (appCache.admin.students && appCache.admin.students.length > 0) {
+      setStudents(appCache.admin.students);
+      if (!studentId) {
+        setStudentId(appCache.admin.students[0].id);
+      }
     }
-    loadStudents();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
+    const unsubscribe = subscribeToCache(() => {
+      if (appCache.admin.students && appCache.admin.students.length > 0) {
+        setStudents(appCache.admin.students);
+        setStudentId((prev) => prev || appCache.admin.students![0].id);
+      }
+    });
+
+    prefetchAllAdminData(supabase);
+
+    return unsubscribe;
   }, []);
 
   async function loadTasks() {
@@ -84,15 +98,17 @@ export default function AdminTasksPage() {
 
   async function handleDelete(id: string) {
     if (!confirm("حذف هذه المهمة؟")) return;
+    setDeletingId(id);
     await fetch(`/api/tasks/${id}`, { method: "DELETE" });
     setTasks((prev) => prev.filter((t) => t.id !== id));
+    setDeletingId(null);
   }
 
   return (
     <div className="space-y-5 animate-fade-up">
       <div>
-        <h1 className="text-xl font-extrabold text-ink-900 dark:text-white">التاسكات اليومية</h1>
-        <p className="text-sm text-ink-500 dark:text-ink-400">حدّد المهام لكل طالب حسب يومه</p>
+        <h1 className="h1 text-theme-primary">التاسكات اليومية</h1>
+        <p className="text-caption text-theme-secondary mt-1">حدّد المهام لكل طالب حسب يومه</p>
       </div>
 
       <div className="flex flex-wrap gap-3">
@@ -135,37 +151,50 @@ export default function AdminTasksPage() {
           value={form.duration_minutes}
           onChange={(e) => setForm({ ...form, duration_minutes: e.target.value })}
         />
-        <button type="submit" disabled={saving || !studentId} className="btn-primary">
-          {saving ? "جاري الإضافة..." : "+ إضافة مهمة"}
-        </button>
-        {error && <p className="text-sm font-bold text-coral-600 sm:col-span-2">{error}</p>}
+        <Button
+          type="submit"
+          variant="primary"
+          isLoading={saving}
+          loadingText="جاري الإضافة..."
+          disabled={saving || !studentId}
+        >
+          + إضافة مهمة
+        </Button>
+        {error && <p className="text-caption font-bold text-coral-600 sm:col-span-2">{error}</p>}
       </form>
 
-      {loading && <p className="text-sm text-ink-400">جاري التحميل...</p>}
+      {loading && <TableRowSkeleton count={4} />}
 
       {!loading && tasks.length === 0 && (
-        <div className="card text-center text-sm text-ink-400">لا يوجد مهام في هذا اليوم لهذا الطالب.</div>
+        <div className="card text-center text-body text-theme-secondary">لا يوجد مهام في هذا اليوم لهذا الطالب.</div>
       )}
 
-      <div className="space-y-2">
-        {tasks.map((task) => (
-          <div key={task.id} className="card flex items-center justify-between gap-3">
-            <div className="min-w-0">
-              <div className="mb-1 flex items-center gap-2">
-                <span className="badge bg-ink-100 text-ink-700 dark:bg-ink-800 dark:text-ink-200">
-                  {task.subject}
-                </span>
-                <span className="text-xs font-bold text-ink-400">{statusLabel[task.status]}</span>
+      {!loading && (
+        <div className="space-y-2">
+          {tasks.map((task) => (
+            <div key={task.id} className="card flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <div className="mb-1 flex items-center gap-2">
+                  <span className="badge">{task.subject}</span>
+                  <span className="text-caption text-theme-secondary">{statusLabel[task.status]}</span>
+                </div>
+                <p className="font-bold text-theme-primary">{task.title}</p>
+                {task.description && <p className="text-caption text-theme-secondary">{task.description}</p>}
               </div>
-              <p className="font-bold text-ink-900 dark:text-white">{task.title}</p>
-              {task.description && <p className="text-sm text-ink-500 dark:text-ink-400">{task.description}</p>}
+              <Button
+                variant="danger"
+                size="sm"
+                isLoading={deletingId === task.id}
+                loadingText="..."
+                onClick={() => handleDelete(task.id)}
+                className="shrink-0"
+              >
+                حذف
+              </Button>
             </div>
-            <button onClick={() => handleDelete(task.id)} className="btn-danger shrink-0">
-              حذف
-            </button>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

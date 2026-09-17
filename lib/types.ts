@@ -1,7 +1,7 @@
 export type Role = "admin" | "student";
 
 export type Profile = {
-  id: string;
+  id: string;                        
   role: Role;
   full_name: string;
   phone: string | null;

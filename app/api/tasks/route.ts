@@ -20,9 +20,9 @@ export async function POST(request: Request) {
   const { supabase, user } = ctx;
 
   const body = await request.json();
-  const { student_id, subject, title, description, duration_minutes, due_date } = body;
+  const { student_id, subject, title, description, duration_minutes, day_number } = body;
 
-  if (!student_id || !subject || !title || !due_date) {
+  if (!student_id || !subject || !title || !day_number) {
     return NextResponse.json({ error: "البيانات ناقصة" }, { status: 400 });
   }
 
@@ -34,7 +34,7 @@ export async function POST(request: Request) {
       title,
       description: description ?? null,
       duration_minutes: duration_minutes ?? null,
-      due_date,
+      day_number,
       created_by: user.id,
     })
     .select()

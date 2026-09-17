@@ -18,7 +18,7 @@ export default function AdminTasksPage() {
   const supabase = createClient();
   const [students, setStudents] = useState<Profile[]>(() => appCache.admin.students ?? []);
   const [studentId, setStudentId] = useState(() => appCache.admin.students?.[0]?.id ?? "");
-  const [date, setDate] = useState(todayISO());
+  const [dayNumber, setDayNumber] = useState(1);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -54,7 +54,7 @@ export default function AdminTasksPage() {
       .from("tasks")
       .select("*")
       .eq("student_id", studentId)
-      .eq("due_date", date)
+      .eq("day_number", dayNumber)
       .order("created_at");
     setTasks((data as Task[]) ?? []);
     setLoading(false);
@@ -63,7 +63,7 @@ export default function AdminTasksPage() {
   useEffect(() => {
     loadTasks();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [studentId, date]);
+  }, [studentId, dayNumber]);
 
   async function handleAdd(e: React.FormEvent) {
     e.preventDefault();
@@ -80,7 +80,7 @@ export default function AdminTasksPage() {
         title: form.title,
         description: form.description || null,
         duration_minutes: form.duration_minutes ? Number(form.duration_minutes) : null,
-        due_date: date,
+        day_number: dayNumber,
       }),
     });
 
@@ -107,8 +107,8 @@ export default function AdminTasksPage() {
   return (
     <div className="space-y-5 animate-fade-up">
       <div>
-        <h1 className="h1 text-theme-primary">التاسكات اليومية</h1>
-        <p className="text-caption text-theme-secondary mt-1">حدّد المهام لكل طالب حسب يومه</p>
+        <h1 className="h1 text-theme-primary">مهام الـ 30 يوم</h1>
+        <p className="text-caption text-theme-secondary mt-1">حدّد المهام لكل طالب حسب رقم اليوم</p>
       </div>
 
       <div className="flex flex-wrap gap-3">
@@ -119,7 +119,11 @@ export default function AdminTasksPage() {
             </option>
           ))}
         </select>
-        <input type="date" className="input max-w-[180px]" value={date} onChange={(e) => setDate(e.target.value)} />
+        <select className="input max-w-[150px]" value={dayNumber} onChange={(e) => setDayNumber(Number(e.target.value))}>
+          {Array.from({ length: 30 }, (_, i) => i + 1).map((d) => (
+            <option key={d} value={d}>اليوم {d}</option>
+          ))}
+        </select>
       </div>
 
       <form onSubmit={handleAdd} className="card grid gap-3 sm:grid-cols-2">

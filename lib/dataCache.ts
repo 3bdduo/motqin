@@ -4,15 +4,15 @@ import type { Profile, Task, Exam, ExamResult, Quote } from "@/lib/types";
 
 export interface AdminStats {
   studentsCount: number;
-  todayTotal: number;
-  todayDone: number;
-  overdueCount: number;
+  totalTasks: number; // changed from todayTotal
+  completedTasks: number; // changed from todayDone
   upcomingExams: number;
 }
 
-export interface StudentWeekStats {
-  total: number;
-  done: number;
+export interface StudentStats {
+  totalTasks: number;
+  completedTasks: number;
+  currentDay: number;
 }
 
 interface CacheStore {
@@ -24,12 +24,13 @@ interface CacheStore {
     fetchedAt: number;
   };
   student: {
-    todayTasks: Task[] | null;
-    overdueTasks: Task[] | null;
+    allTasks: Task[] | null;
+    currentDayTasks: Task[] | null;
+    currentDay: number;
     exams: Exam[] | null;
     examResults: Record<string, ExamResult> | null;
     reportResults: (ExamResult & { exam: Exam })[] | null;
-    weekStats: StudentWeekStats | null;
+    stats: StudentStats | null;
     quotes: Quote[] | null;
     fetchedAt: number;
   };
@@ -44,12 +45,13 @@ export const appCache: CacheStore = {
     fetchedAt: 0,
   },
   student: {
-    todayTasks: null,
-    overdueTasks: null,
+    allTasks: null,
+    currentDayTasks: null,
+    currentDay: 1,
     exams: null,
     examResults: null,
     reportResults: null,
-    weekStats: null,
+    stats: null,
     quotes: null,
     fetchedAt: 0,
   },
@@ -106,8 +108,7 @@ export async function prefetchAllAdminData(supabase: SupabaseClient, force = fal
         quotesRes,
       ] = await Promise.all([
         supabase.from("profiles").select("*").eq("role", "student").order("full_name", { ascending: true }),
-        supabase.from("tasks").select("status").eq("due_date", today),
-        supabase.from("tasks").select("id", { count: "exact", head: true }).lt("due_date", today).neq("status", "completed"),
+        supabase.from("tasks").select("status"),
         supabase.from("exams").select("id", { count: "exact", head: true }).gte("exam_date", new Date().toISOString()),
         supabase.from("exams").select("*").order("exam_date", { ascending: false }),
         supabase.from("quotes").select("*").order("created_at", { ascending: false }),
@@ -124,9 +125,8 @@ export async function prefetchAllAdminData(supabase: SupabaseClient, force = fal
 
       appCache.admin.stats = {
         studentsCount: students.length,
-        todayTotal: todayList.length,
-        todayDone: todayList.filter((t) => t.status === "completed").length,
-        overdueCount: overdueRes.count ?? 0,
+        totalTasks: todayList.length,
+        completedTasks: todayList.filter((t) => t.status === "completed").length,
         upcomingExams: upcomingExamsRes.count ?? 0,
       };
 
@@ -166,20 +166,16 @@ export async function prefetchAllStudentData(supabase: SupabaseClient, userId: s
       const weekAgoStr = weekAgo.toISOString().slice(0, 10);
 
       const [
-        todayTasksRes,
-        overdueTasksRes,
+        tasksRes,
         examsRes,
         examResultsRes,
         reportResultsRes,
-        weekTasksRes,
         quotesRes,
       ] = await Promise.all([
-        supabase.from("tasks").select("*").eq("student_id", userId).eq("due_date", today).order("created_at", { ascending: true }),
-        supabase.from("tasks").select("*").eq("student_id", userId).lt("due_date", today).neq("status", "completed").order("due_date", { ascending: false }),
+        supabase.from("tasks").select("*").eq("student_id", userId).order("day_number", { ascending: true }),
         supabase.from("exams").select("*").order("exam_date", { ascending: false }),
         supabase.from("exam_results").select("*").eq("student_id", userId),
         supabase.from("exam_results").select("*, exam:exams(*)").eq("student_id", userId).order("taken_at", { ascending: true }),
-        supabase.from("tasks").select("*").eq("student_id", userId).gte("due_date", weekAgoStr),
         supabase.from("quotes").select("text").eq("is_active", true),
       ]);
 
@@ -188,19 +184,37 @@ export async function prefetchAllStudentData(supabase: SupabaseClient, userId: s
         resultMap[r.exam_id] = r;
       });
 
-      const weekTasks = (weekTasksRes.data as Task[]) ?? [];
+      const allTasks = (tasksRes.data as Task[]) ?? [];
+      
+      const groupedByDay: Record<number, Task[]> = {};
+      allTasks.forEach(t => {
+        groupedByDay[t.day_number] = groupedByDay[t.day_number] || [];
+        groupedByDay[t.day_number].push(t);
+      });
 
-      appCache.student.todayTasks = (todayTasksRes.data as Task[]) ?? [];
-      appCache.student.overdueTasks = ((overdueTasksRes.data as Task[]) ?? []).map((t) => ({
-        ...t,
-        status: "late" as const,
-      }));
+      let currentDay = 1;
+      const days = Object.keys(groupedByDay).map(Number).sort((a,b)=>a-b);
+      for (const day of days) {
+        const dayTasks = groupedByDay[day];
+        const allDone = dayTasks.every(t => t.status === "completed");
+        if (!allDone) {
+          currentDay = day;
+          break;
+        }
+        currentDay = day + 1; // if all done, move to next day
+      }
+
+      appCache.student.allTasks = allTasks;
+      appCache.student.currentDayTasks = groupedByDay[currentDay] ?? [];
+      appCache.student.currentDay = currentDay;
+
       appCache.student.exams = (examsRes.data as Exam[]) ?? [];
       appCache.student.examResults = resultMap;
       appCache.student.reportResults = (reportResultsRes.data as any) ?? [];
-      appCache.student.weekStats = {
-        total: weekTasks.length,
-        done: weekTasks.filter((t) => t.status === "completed").length,
+      appCache.student.stats = {
+        totalTasks: allTasks.length,
+        completedTasks: allTasks.filter((t) => t.status === "completed").length,
+        currentDay
       };
       appCache.student.quotes = (quotesRes.data as Quote[]) ?? [];
 
@@ -249,15 +263,31 @@ export const cacheMutations = {
   },
   updateStudentTask(taskId: string, done: boolean) {
     const newStatus = done ? "completed" : "pending";
-    if (appCache.student.todayTasks) {
-      appCache.student.todayTasks = appCache.student.todayTasks.map((t) =>
+    if (appCache.student.allTasks) {
+      appCache.student.allTasks = appCache.student.allTasks.map((t) =>
         t.id === taskId ? { ...t, status: newStatus } : t
       );
-    }
-    if (appCache.student.overdueTasks) {
-      if (done) {
-        appCache.student.overdueTasks = appCache.student.overdueTasks.filter((t) => t.id !== taskId);
+      
+      // Recompute current day
+      const groupedByDay: Record<number, Task[]> = {};
+      appCache.student.allTasks.forEach(t => {
+        groupedByDay[t.day_number] = groupedByDay[t.day_number] || [];
+        groupedByDay[t.day_number].push(t);
+      });
+
+      let currentDay = 1;
+      const days = Object.keys(groupedByDay).map(Number).sort((a,b)=>a-b);
+      for (const day of days) {
+        const dayTasks = groupedByDay[day];
+        const allDone = dayTasks.every(t => t.status === "completed");
+        if (!allDone) {
+          currentDay = day;
+          break;
+        }
+        currentDay = day + 1;
       }
+      appCache.student.currentDay = currentDay;
+      appCache.student.currentDayTasks = groupedByDay[currentDay] ?? [];
     }
     notifySubscribers();
   },

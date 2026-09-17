@@ -39,6 +39,7 @@ export default function StudentDetailPage() {
     notes: "",
   });
   const [subjects, setSubjects] = useState<string[]>([]);
+  const [customSubjectInput, setCustomSubjectInput] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -68,6 +69,18 @@ export default function StudentDetailPage() {
 
   function toggleSubject(subject: string) {
     setSubjects((prev) => (prev.includes(subject) ? prev.filter((s) => s !== subject) : [...prev, subject]));
+  }
+
+  function addCustomSubject() {
+    const trimmed = customSubjectInput.trim();
+    if (!trimmed) return;
+    const allSubjects = [...SUBJECT_OPTIONS, ...subjects.filter((s) => !SUBJECT_OPTIONS.includes(s))];
+    if (!allSubjects.includes(trimmed)) {
+      setSubjects((prev) => [...prev, trimmed]);
+    } else if (!subjects.includes(trimmed)) {
+      setSubjects((prev) => [...prev, trimmed]);
+    }
+    setCustomSubjectInput("");
   }
 
   async function handleSave(e: React.FormEvent) {
@@ -176,6 +189,7 @@ export default function StudentDetailPage() {
         <div>
           <label className="label">المواد الدراسية</label>
           <div className="flex flex-wrap gap-2">
+            {/* المواد الافتراضية */}
             {SUBJECT_OPTIONS.map((subject) => (
               <button
                 type="button"
@@ -190,6 +204,44 @@ export default function StudentDetailPage() {
                 {subject}
               </button>
             ))}
+            {/* المواد المضافة يدويًا (غير موجودة في القائمة الافتراضية) */}
+            {subjects
+              .filter((s) => !SUBJECT_OPTIONS.includes(s))
+              .map((subject) => (
+                <button
+                  type="button"
+                  key={subject}
+                  onClick={() => toggleSubject(subject)}
+                  className="rounded-full border px-3 py-1.5 text-caption font-bold transition-all duration-200 ease-out active:scale-[0.96] border-[#2563EB] bg-[#2563EB] text-white dark:border-[#C87A4B] dark:bg-[#C87A4B]"
+                >
+                  {subject} ✕
+                </button>
+              ))}
+          </div>
+
+          {/* إضافة مادة جديدة */}
+          <div className="mt-3 flex gap-2">
+            <input
+              type="text"
+              className="input flex-1"
+              placeholder="أضف مادة جديدة..."
+              value={customSubjectInput}
+              onChange={(e) => setCustomSubjectInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  addCustomSubject();
+                }
+              }}
+            />
+            <button
+              type="button"
+              onClick={addCustomSubject}
+              disabled={!customSubjectInput.trim()}
+              className="rounded-xl border border-[#2563EB] bg-[#2563EB] px-4 py-2 text-caption font-bold text-white transition-all duration-200 hover:bg-[#1D4ED8] active:scale-[0.96] disabled:cursor-not-allowed disabled:opacity-40 dark:border-[#C87A4B] dark:bg-[#C87A4B] dark:hover:bg-[#B5693A]"
+            >
+              + إضافة
+            </button>
           </div>
         </div>
 

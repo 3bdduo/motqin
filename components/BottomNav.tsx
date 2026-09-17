@@ -9,6 +9,7 @@ const items = [
   { href: "/student", label: "اليوم", icon: HomeIcon },
   { href: "/student/overdue", label: "متأخرة", icon: ClockIcon },
   { href: "/student/exams", label: "الامتحانات", icon: PencilIcon },
+  { href: "/student/resources", label: "المكتبة", icon: BookIcon },
   { href: "/student/reports", label: "تقريري", icon: ChartIcon },
 ];
 
@@ -116,6 +117,15 @@ function ChartIcon({ active }: { active: boolean }) {
   return (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={active ? 2.4 : 1.8} strokeLinecap="round" strokeLinejoin="round">
       <path d="M5 19V10M12 19V5M19 19v-7" />
+    </svg>
+  );
+}
+
+function BookIcon({ active }: { active: boolean }) {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={active ? 2.4 : 1.8} strokeLinecap="round" strokeLinejoin="round">
+      <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+      <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
     </svg>
   );
 }

@@ -26,7 +26,7 @@ export type Task = {
   title: string;
   description: string | null;
   duration_minutes: number | null;
-  due_date: string;
+  day_number: number;
   status: TaskStatus;
   created_by: string | null;
   created_at: string;
@@ -76,5 +76,19 @@ export type Notification = {
   message: string;
   type: string;
   is_read: boolean;
+  created_at: string;
+};
+
+export type Resource = {
+  id: string;
+  title: string;
+  description: string | null;
+  file_url: string;
+  file_name: string;
+  file_type: string;
+  file_size: number | null;
+  visibility: "all" | "specific_students";
+  allowed_student_ids: string[];
+  created_by: string | null;
   created_at: string;
 };

@@ -29,7 +29,7 @@ create table if not exists public.tasks (
   title text not null,
   description text,
   duration_minutes int,
-  due_date date not null,
+  day_number int not null default 1,
   status text not null default 'pending' check (status in ('pending', 'completed', 'late')),
   created_by uuid references public.profiles (id),
   created_at timestamptz not null default now(),
@@ -206,3 +206,62 @@ create policy "notifications_admin_write" on public.notifications
 -- insert into public.profiles (id, role, full_name)
 -- values ('ضع-uid-الأدمن-هنا', 'admin', 'اسم الأدمن');
 -- =========================================================
+
+-- =========================================================
+-- مكتبة الملفات (Resources)
+-- =========================================================
+
+create table if not exists public.resources (
+  id uuid primary key default gen_random_uuid(),
+  title text not null,
+  description text,
+  file_url text not null,
+  file_name text not null,
+  file_type text not null,
+  file_size bigint,
+  visibility text not null default 'all'
+    check (visibility in ('all', 'specific_students')),
+  allowed_student_ids uuid[] not null default '{}',
+  created_by uuid references public.profiles (id) on delete set null,
+  created_at timestamptz not null default now()
+);
+
+alter table public.resources enable row level security;
+
+-- الأدمن: كل الصلاحيات
+drop policy if exists "resources_admin_all" on public.resources;
+create policy "resources_admin_all" on public.resources
+  for all using (public.is_admin()) with check (public.is_admin());
+
+-- الطالب: يشوف فقط الملفات المتاحة له
+drop policy if exists "resources_student_select" on public.resources;
+create policy "resources_student_select" on public.resources
+  for select using (
+    auth.uid() is not null
+    and (
+      visibility = 'all'
+      or (visibility = 'specific_students' and auth.uid() = any(allowed_student_ids))
+    )
+  );
+
+-- =========================================================
+-- Storage bucket "resources"
+-- شغّل ده يدويًا من SQL Editor في Supabase:
+-- =========================================================
+-- insert into storage.buckets (id, name, public)
+-- values ('resources', 'resources', true)
+-- on conflict do nothing;
+--
+-- drop policy if exists "resources_storage_admin_upload" on storage.objects;
+-- create policy "resources_storage_admin_upload" on storage.objects
+--   for insert with check (bucket_id = 'resources' and public.is_admin());
+--
+-- drop policy if exists "resources_storage_admin_delete" on storage.objects;
+-- create policy "resources_storage_admin_delete" on storage.objects
+--   for delete using (bucket_id = 'resources' and public.is_admin());
+--
+-- drop policy if exists "resources_storage_public_read" on storage.objects;
+-- create policy "resources_storage_public_read" on storage.objects
+--   for select using (bucket_id = 'resources');
+-- =========================================================
+

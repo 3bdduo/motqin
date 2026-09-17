@@ -10,6 +10,7 @@ const items = [
   { href: "/admin/tasks", label: "التاسكات" },
   { href: "/admin/exams", label: "الامتحانات الشهرية" },
   { href: "/admin/quotes", label: "العبارات التحفيزية" },
+  { href: "/admin/resources", label: "مكتبة الملفات" },
 ];
 
 export function AdminSidebar() {

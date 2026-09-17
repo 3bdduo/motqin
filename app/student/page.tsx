@@ -13,7 +13,9 @@ import { appCache, prefetchAllStudentData, subscribeToCache, cacheMutations } fr
 
 export default function StudentHomePage() {
   const supabase = createClient();
-  const [tasks, setTasks] = useState<Task[]>(() => appCache.student.todayTasks ?? []);
+  const [tasks, setTasks] = useState<Task[]>(() => appCache.student.currentDayTasks ?? []);
+  const [currentDay, setCurrentDay] = useState<number>(() => appCache.student.currentDay ?? 1);
+  const [stats, setStats] = useState(() => appCache.student.stats ?? { totalTasks: 0, completedTasks: 0, currentDay: 1 });
   const [quote, setQuote] = useState<string>(() => {
     if (appCache.student.quotes && appCache.student.quotes.length > 0) {
       const idx = new Date().getDate() % appCache.student.quotes.length;
@@ -24,8 +26,10 @@ export default function StudentHomePage() {
   const [loading, setLoading] = useState<boolean>(() => !appCache.student.todayTasks);
 
   useEffect(() => {
-    if (appCache.student.todayTasks) {
-      setTasks(appCache.student.todayTasks);
+    if (appCache.student.currentDayTasks) {
+      setTasks(appCache.student.currentDayTasks);
+      setCurrentDay(appCache.student.currentDay);
+      setStats(appCache.student.stats!);
       setLoading(false);
     }
     if (appCache.student.quotes && appCache.student.quotes.length > 0) {
@@ -34,8 +38,10 @@ export default function StudentHomePage() {
     }
 
     const unsubscribe = subscribeToCache(() => {
-      if (appCache.student.todayTasks) {
-        setTasks(appCache.student.todayTasks);
+      if (appCache.student.currentDayTasks) {
+        setTasks(appCache.student.currentDayTasks);
+        setCurrentDay(appCache.student.currentDay);
+        setStats(appCache.student.stats!);
         setLoading(false);
       }
       if (appCache.student.quotes && appCache.student.quotes.length > 0) {
@@ -92,11 +98,11 @@ export default function StudentHomePage() {
           <div>
             {/* Date Tag: nested-div */}
             <div className="inline-flex items-center gap-1.5 rounded-lg border border-[#E2E8F0] bg-[#EFF6FF] px-2.5 py-1 text-xs font-bold text-[#2563EB] dark:border-[#332922] dark:bg-[#271F1A] dark:text-[#E09F6E]">
-              {formatDate(todayISO())}
+              اليوم {currentDay} من 30
             </div>
 
             <h2 className="mt-2 h2 text-theme-primary">
-              انجازك اليوم
+              انجازك الحالي
             </h2>
 
             <p className="mt-1 text-caption text-theme-secondary">
@@ -140,10 +146,10 @@ export default function StudentHomePage() {
             <div className="h-3 w-3 rounded-full bg-[#2563EB] dark:bg-[#C87A4B]" />
           </div>
           <p className="font-black text-body text-theme-primary">
-            رائع جداً! انهيت جميع مهام اليوم بنجاح
+            رائع جداً! انهيت جميع مهام اليوم {currentDay} بنجاح
           </p>
           <p className="text-caption text-theme-secondary mt-1">
-            الاستاذة اسراء حسن فخورة بك — استمتع بوقتك
+            اليوم التالي سيفتح قريباً — استمر يا بطل!
           </p>
         </div>
       )}
@@ -152,7 +158,7 @@ export default function StudentHomePage() {
       <div>
         <div className="mb-3.5 flex items-center justify-between">
           <h3 className="flex items-center gap-2 font-black h3 text-theme-primary">
-            <span>مهام اليوم</span>
+            <span>مهام اليوم {currentDay}</span>
             <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-[#EFF6FF] text-[11px] font-black text-[#2563EB] dark:bg-[#271F1A] dark:text-[#E09F6E]">
               {tasks.length}
             </span>

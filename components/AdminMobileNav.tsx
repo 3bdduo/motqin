@@ -10,6 +10,7 @@ const items = [
   { href: "/admin/tasks", label: "التاسكات" },
   { href: "/admin/exams", label: "الامتحانات" },
   { href: "/admin/quotes", label: "العبارات" },
+  { href: "/admin/resources", label: "المكتبة" },
 ];
 
 export function AdminMobileNav() {

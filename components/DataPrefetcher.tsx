@@ -60,6 +60,7 @@ export function StudentDataPrefetcher({ userId }: { userId?: string }) {
       "/student",
       "/student/overdue",
       "/student/exams",
+      "/student/resources",
       "/student/reports",
     ];
 

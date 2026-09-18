@@ -313,9 +313,10 @@ export default function LoginPage() {
                   {/* Eye Toggle on the left side */}
                   <button
                     type="button"
+                    onMouseDown={(e) => e.preventDefault()}
                     onClick={() => setShowPassword((p) => !p)}
                     aria-label={showPassword ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 text-[#94A3B8] dark:text-[#4D3E35] hover:text-[#2563EB] dark:hover:text-[#C87A4B] transition-colors duration-200 focus:outline-none p-1 cursor-pointer"
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-[#94A3B8] dark:text-[#4D3E35] hover:text-[#2563EB] dark:hover:text-[#C87A4B] transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB] rounded p-1 cursor-pointer"
                   >
                     {showPassword ? (
                       <svg style={{ height: "16px", width: "16px" }} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

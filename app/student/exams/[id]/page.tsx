@@ -142,7 +142,7 @@ export default function TakeExamPage() {
         <div className="relative overflow-hidden rounded-3xl border border-[#E2E8F0] bg-[#F8FAFC] p-6 text-center shadow-sm dark:border-[#332922] dark:bg-[#1D1713] transition-all duration-300">
           {/* Teacher Branding */}
           <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[#CBD5E1] bg-[#DBEAFE] px-3 py-1 text-xs font-black text-[#1E40AF] dark:border-[#4D3E35] dark:bg-[#3A2B22] dark:text-[#E09F6E]">
-            <span>الاستاذة اسراء حسن</span>
+            <span>دكتور اسراء حسن</span>
           </div>
 
           <h2 className="h1 text-theme-primary">
@@ -172,7 +172,7 @@ export default function TakeExamPage() {
               ? "مستوى ممتاز واستيعاب عالي جداً. بارك الله في جهدك."
               : isGood
               ? "أداء طيب، ومع المراجعة المنتظمة ستصل للدرجة النهائية."
-              : "فرصة رائعة للمراجعة والتركيز على النقاط غير المفهومة مع المعلمة."}
+              : "فرصة رائعة للمراجعة والتركيز على النقاط غير المفهومة مع دكتور إسراء."}
           </p>
 
           <button
@@ -200,7 +200,7 @@ export default function TakeExamPage() {
         <div className="relative overflow-hidden rounded-3xl border border-[#E2E8F0] bg-[#F8FAFC] p-6 text-center shadow-sm dark:border-[#332922] dark:bg-[#1D1713] transition-all duration-300">
           {/* Teacher Tag */}
           <div className="mb-2 inline-flex items-center gap-1.5 rounded-full border border-[#CBD5E1] bg-[#DBEAFE] px-3 py-1 text-xs font-black text-[#1E40AF] dark:border-[#4D3E35] dark:bg-[#3A2B22] dark:text-[#E09F6E]">
-            <span>الاستاذة اسراء حسن</span>
+            <span>دكتور اسراء حسن</span>
           </div>
 
           <div className="mt-2">

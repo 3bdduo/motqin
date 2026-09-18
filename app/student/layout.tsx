@@ -30,7 +30,7 @@ export default async function StudentLayout({ children }: { children: React.Reac
 
             <div>
               <p className="text-caption font-bold text-theme-secondary tracking-wide">
-                مُتقِن — الاستاذة اسراء حسن
+                مُتقِن — دكتور اسراء حسن
               </p>
               <p className="font-black text-body text-theme-primary truncate max-w-[160px]">
                 {studentName}

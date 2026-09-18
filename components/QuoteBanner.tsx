@@ -47,7 +47,7 @@ export function QuoteBanner({ text }: { text: string }) {
       <div className="relative mb-3 flex items-center gap-2">
         <div className="h-0.5 w-6 rounded-full bg-white/60" />
         <span className="text-[10px] font-black uppercase tracking-widest text-white/70">
-          الاستاذة اسراء حسن
+          دكتور اسراء حسن
         </span>
         <div className="h-0.5 flex-1 rounded-full bg-white/30" />
       </div>

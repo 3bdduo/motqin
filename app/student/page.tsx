@@ -88,7 +88,7 @@ export default function StudentHomePage() {
       <div className="flex items-center gap-2.5 rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-3.5 py-2 dark:border-[#332922] dark:bg-[#1D1713] transition-all duration-300">
         <div className="h-2 w-2 rounded-full bg-[#2563EB] dark:bg-[#C87A4B]" />
         <p className="text-caption font-extrabold text-theme-primary tracking-wide">
-          مُتقِن — منصة الاستاذة اسراء حسن للإتقان والتفوق الاكاديمي
+          مُتقِن — منصة دكتور اسراء حسن للإتقان والتفوق الاكاديمي
         </p>
       </div>
 
@@ -182,7 +182,7 @@ export default function StudentHomePage() {
               لا توجد مهام مضافة اليوم
             </p>
             <p className="mt-1 text-caption text-theme-secondary">
-              تواصل مع الاستاذة اسراء حسن لإضافة مهامك
+              تواصل مع دكتور اسراء حسن لإضافة مهامك
             </p>
           </div>
         )}

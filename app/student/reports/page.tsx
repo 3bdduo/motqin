@@ -79,7 +79,7 @@ export default function StudentReportsPage() {
               لوحة انجازاتي
             </h1>
             <p className="mt-0.5 text-caption font-bold text-theme-secondary">
-              الاستاذة اسراء حسن — تابع تطور مستواك
+              دكتور اسراء حسن — تابع تطور مستواك
             </p>
           </div>
         </div>
@@ -125,7 +125,7 @@ export default function StudentReportsPage() {
               {results.length}
             </span>
           </h2>
-          <p className="text-caption font-bold text-theme-secondary">الاستاذة اسراء حسن</p>
+          <p className="text-caption font-bold text-theme-secondary">دكتور اسراء حسن</p>
         </div>
 
         {results.length === 0 && (

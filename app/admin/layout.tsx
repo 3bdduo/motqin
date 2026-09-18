@@ -25,7 +25,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             <LogoWithModal />
             <div>
               <p className="text-xs font-bold text-[#475569] dark:text-[#A3968B]">
-                الاستاذة اسراء حسن — لوحة التحكم
+                دكتور اسراء حسن — لوحة التحكم
               </p>
               <p className="font-extrabold text-[#0F172A] dark:text-[#F5F0EB]">
                 {profile?.full_name ?? "المشرف"}

@@ -61,7 +61,7 @@ export default function StudentExamsPage() {
               الامتحانات الشهرية
             </h1>
             <p className="mt-0.5 text-caption font-bold text-theme-secondary">
-              الاستاذة اسراء حسن — اختبر مستواك
+              دكتور اسراء حسن — اختبر مستواك
             </p>
           </div>
         </div>
@@ -87,7 +87,7 @@ export default function StudentExamsPage() {
             لا توجد امتحانات حالياً
           </p>
           <p className="mt-1 text-caption text-theme-secondary">
-            ستضاف امتحانات الاستاذة اسراء حسن في مواعيدها
+            ستضاف امتحانات دكتور اسراء حسن في مواعيدها
           </p>
         </div>
       )}

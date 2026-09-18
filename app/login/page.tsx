@@ -124,7 +124,7 @@ export default function LoginPage() {
             مُتْقِن
           </h1>
           <p className="text-base lg:text-lg xl:text-xl font-bold text-white/90 dark:text-[#E09F6E] mb-1.5 font-heading">
-            منصة الأستاذة إسراء حسن
+            منصة دكتور إسراء حسن
           </p>
           <p className="text-sm lg:text-base font-semibold text-white/75 dark:text-[#A3968B] mb-6 lg:mb-8">
             للإتقان والتفوق الأكاديمي

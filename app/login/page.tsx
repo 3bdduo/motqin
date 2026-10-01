@@ -24,25 +24,52 @@ export default function LoginPage() {
     setLoading(true);
     setError(null);
 
-    const { data, error: signInError } = await supabase.auth.signInWithPassword({
-      email: email.trim(),
-      password,
-    });
+    try {
+      const { data, error: signInError } = await supabase.auth.signInWithPassword({
+        email: email.trim().toLowerCase(),
+        password,
+      });
 
-    if (signInError) {
-      setError("البريد الإلكتروني أو كلمة المرور غير صحيحة");
+      if (signInError) {
+        // تمييز بين خطأ الـ credentials وأخطاء الشبكة
+        if (
+          signInError.message.includes("Invalid login") ||
+          signInError.message.includes("invalid_credentials") ||
+          signInError.message.includes("Email not confirmed")
+        ) {
+          setError("البريد الإلكتروني أو كلمة المرور غير صحيحة");
+        } else if (
+          signInError.message.includes("fetch") ||
+          signInError.message.includes("network") ||
+          signInError.message.includes("Failed")
+        ) {
+          setError("خطأ في الاتصال بالشبكة، تحقق من اتصالك وحاول مجدداً");
+        } else {
+          setError("البريد الإلكتروني أو كلمة المرور غير صحيحة");
+        }
+        setLoading(false);
+        return;
+      }
+
+      // نحاول نجيب الـ role من metadata أولاً (أسرع)
+      const role = data.user.user_metadata?.role as string | undefined;
+      if (role === "admin" || role === "student") {
+        router.replace(role === "admin" ? "/admin" : "/student");
+        return;
+      }
+
+      // fallback: من قاعدة البيانات
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", data.user.id)
+        .single();
+
+      router.replace(profile?.role === "admin" ? "/admin" : "/student");
+    } catch {
+      setError("حدث خطأ غير متوقع، حاول مجدداً");
       setLoading(false);
-      return;
     }
-
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", data.user.id)
-      .single();
-
-    router.replace(profile?.role === "admin" ? "/admin" : "/student");
-    router.refresh();
   }
 
   return (
